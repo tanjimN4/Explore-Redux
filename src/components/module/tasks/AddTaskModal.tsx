@@ -29,22 +29,36 @@ import { addTask } from "@/redux/features/task/taskSlice"
 import type { ITask } from "@/types"
 import { selectUsers } from "@/redux/features/user/userSlice"
 import { useState } from "react"
+import { useCreateTasksMutation } from "@/redux/api/baseApi"
 
 
 const AddTaskModal = () => {
 
+    const [createTask,{data,isLoading,isError}] =useCreateTasksMutation()
+
+    console.log('data',data);
+    
     const [open ,setOpen] = useState(false);
-    const form = useForm();
+    const form = useForm<ITask>();
 
     const dispatch = useAppDispatch()
 
     const users =useAppSelector(selectUsers)
 
-    const onsubmit :SubmitHandler<FieldValue<ITask>> = (data) => {
+    const onsubmit: SubmitHandler<ITask> =async (data) => {
 
-        dispatch(addTask(data as ITask));
-        setOpen(false);
-        form.reset();
+        const taskData: ITask = {
+            ...data,
+            isCompleted: false,
+        }
+        const res= createTask(taskData).unwrap()
+
+        console.log('res',res);
+        
+
+        // dispatch(addTask(data as ITask));
+        // setOpen(false);
+        // form.reset();
     };
     return (
         <div>
@@ -152,9 +166,9 @@ const AddTaskModal = () => {
                                                     <SelectValue placeholder="Select priority" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="Low">Low</SelectItem>
-                                                    <SelectItem value="Medium">Medium</SelectItem>
-                                                    <SelectItem value="High">High</SelectItem>
+                                                    <SelectItem value="low">Low</SelectItem>
+                                                    <SelectItem value="medium">Medium</SelectItem>
+                                                    <SelectItem value="high">High</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </FormControl>
